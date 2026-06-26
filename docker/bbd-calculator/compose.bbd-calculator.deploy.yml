@@ -1,0 +1,14 @@
+# Deploy as Portainer stack: bbd-calculator
+services:
+  bbd-calculator:
+    image: dpcatgm/bbd-calculator:latest
+    container_name: bbd-calculator
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
