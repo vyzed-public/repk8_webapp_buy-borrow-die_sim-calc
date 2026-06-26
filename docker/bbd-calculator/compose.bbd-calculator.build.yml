@@ -7,8 +7,6 @@
 #   docker-compose logs -f      # View logs
 #   docker-compose up --build   # Rebuild and start
 
-version: "3.8"
-
 services:
   calculator:
     build:
