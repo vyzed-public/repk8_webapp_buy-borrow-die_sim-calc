@@ -1,0 +1,31 @@
+# #2: Configure: Portainer-deployable Docker compose files for the BBD webapp
+
+**State:** OPEN
+**Author:** dpcunningham
+**Created:** 2026-06-26T19:25:12Z
+
+---
+
+IF we were to deploy in straight Docker, WITHOUT using Portainer, our preference would be:
+
+**Repo structure:**
+```
+docker/
+  bbd-calculator/
+    compose.build.yml       # build from source
+    compose.deploy.yml      # pull from Docker Hub
+```
+
+**On the server (`/var/opt/docker/`):**
+```
+/var/opt/docker/bbd-calculator/
+  compose.build.yml         # copied/pulled from repo
+  compose.deploy.yml        # copied/pulled from repo
+  compose.yml -> compose.deploy.yml  # symlink to active config
+```
+
+**Portainer:** points directly at whichever named file it needs in the repo — no symlink involved.
+
+**CLI on server:** `docker compose up -d` from `/var/opt/docker/bbd-calculator/` follows the symlink transparently.
+
+
