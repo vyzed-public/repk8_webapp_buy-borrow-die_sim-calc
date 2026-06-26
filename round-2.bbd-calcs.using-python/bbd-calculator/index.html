@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy, Borrow, Die Strategy Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-input: #0d1320;
+            --border-color: #2d3a4f;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-green-dim: rgba(16, 185, 129, 0.15);
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: rgba(59, 130, 246, 0.15);
+            --accent-red: #ef4444;
+            --accent-red-dim: rgba(239, 68, 68, 0.15);
+            --accent-amber: #f59e0b;
+            --accent-amber-dim: rgba(245, 158, 11, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .python-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent-blue-dim);
+            border: 1px solid var(--accent-blue);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+        }
+
+        .python-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: var(--accent-green);
+            border-radius: 2px;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group:last-of-type {
+            margin-bottom: 1.75rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px var(--accent-green-dim);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .input-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.875rem 1.25rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .results-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-green);
+        }
+
+        .stat-card.feasible {
+            border-color: var(--accent-green);
+            background: linear-gradient(135deg, var(--accent-green-dim) 0%, transparent 100%);
+        }
+
+        .stat-card.not-feasible {
+            border-color: var(--accent-red);
+            background: linear-gradient(135deg, var(--accent-red-dim) 0%, transparent 100%);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-value.green { color: var(--accent-green); }
+        .stat-value.blue { color: var(--accent-blue); }
+        .stat-value.amber { color: var(--accent-amber); }
+        .stat-value.red { color: var(--accent-red); }
+
+        .stat-subtext {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            padding: 1rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            max-height: 500px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        th:first-child, td:first-child {
+            text-align: center;
+        }
+
+        td {
+            font-family: 'DM Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        tr.warning td {
+            background: var(--accent-amber-dim);
+        }
+
+        tr.danger td {
+            background: var(--accent-red-dim);
+        }
+
+        tr.totals td {
+            font-weight: 600;
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .error-message {
+            background: var(--accent-red-dim);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.7;
+        }
+
+        .disclaimer strong {
+            color: var(--accent-amber);
+        }
+
+        .info-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .info-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .info-section p, .info-section li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-section ul {
+            padding-left: 1.5rem;
+        }
+
+        .code-note {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .code-note strong {
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Buy · Borrow · Die</h1>
+            <p class="subtitle">
+                Simulate the wealth strategy used by affluent investors: buy appreciating assets, 
+                borrow against them tax-free, and pass wealth to heirs with a stepped-up basis.
+            </p>
+            <div class="python-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+                Python-Powered Calculations (Auditable)
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <aside>
+                <div class="card">
+                    <h2 class="card-title">Parameters</h2>
+                    
+                    <div id="errorContainer"></div>
+                    
+                    <div class="input-group">
+                        <label for="initialInvestment">Initial Investment ($)</label>
+                        <input type="number" id="initialInvestment" value="5000000" min="0" step="100000">
+                        <div class="input-hint">Starting asset value to borrow against</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="annualBorrowing">Annual Borrowing ($, Year 1)</label>
+                        <input type="number" id="annualBorrowing" value="200000" min="0" step="10000">
+                        <div class="input-hint">First-year draw; increases with inflation</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="investmentGrowth">Investment Growth (%)</label>
+                        <input type="number" id="investmentGrowth" value="8" min="0" max="100" step="0.5">
+                        <div class="input-hint">Expected nominal annual return</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="loanInterest">Loan Interest (%)</label>
+                        <input type="number" id="loanInterest" value="5" min="0" max="100" step="0.25">
+                        <div class="input-hint">Securities-backed loan rate</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="inflation">Inflation (%)</label>
+                        <input type="number" id="inflation" value="3" min="0" max="100" step="0.5">
+                        <div class="input-hint">Used to index borrowing & deflate final value</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="maxLeverage">Max Leverage (%)</label>
+                        <input type="number" id="maxLeverage" value="50" min="1" max="99" step="5">
+                        <div class="input-hint">Maximum loan-to-asset ratio allowed</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="years">Simulation Years</label>
+                        <input type="number" id="years" value="30" min="1" max="100" step="1">
+                        <div class="input-hint">Time horizon for the strategy</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="calculateBtn" onclick="calculate()">Calculate</button>
+                        <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+                        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="results-area">
+                <div class="summary-grid" id="summaryGrid">
+                    <div class="stat-card" id="statusCard">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" id="statusValue">—</div>
+                        <div class="stat-subtext" id="statusSubtext">Run simulation</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Final Net Worth</div>
+                        <div class="stat-value green" id="finalNetWorth">$—</div>
+                        <div class="stat-subtext">in today's dollars</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Peak Leverage</div>
+                        <div class="stat-value amber" id="peakLeverage">—%</div>
+                        <div class="stat-subtext">highest loan/asset ratio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Borrowed</div>
+                        <div class="stat-value blue" id="totalBorrowed">$—</div>
+                        <div class="stat-subtext">nominal sum of all draws</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Projection Chart</h2>
+                    <div class="loading" id="chartLoading">
+                        <div class="spinner"></div>
+                        <span>Calculating...</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="projectionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Year-by-Year Breakdown</h2>
+                    <div class="table-wrapper">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Start Asset</th>
+                                    <th>End Asset</th>
+                                    <th>Start Loan</th>
+                                    <th>New Borrow</th>
+                                    <th>Interest</th>
+                                    <th>End Loan</th>
+                                    <th>Leverage</th>
+                                    <th>Net Worth</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody">
+                                <tr>
+                                    <td colspan="9" class="empty-state">
+                                        Enter parameters and click Calculate to run simulation
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <section class="info-section">
+            <h2>How This Calculator Works</h2>
+            <p>
+                Each year, your assets grow by the Investment Growth %, your existing loan accrues interest, 
+                and you take a new borrowing draw that scales with inflation to preserve real spending power. 
+                The tool caps total year-end leverage (loan ÷ assets) at your Max Leverage %. If the cap would 
+                be exceeded, borrowing is automatically reduced for that year.
+            </p>
+            
+            <div class="code-note">
+                <strong>Auditable Code:</strong> All financial calculations are performed in Python 
+                (<code>calculator.py</code>). The JavaScript frontend only handles UI and visualization.
+                Review the Python source to verify the math.
+            </div>
+
+            <h2 style="margin-top: 1.5rem;">Strategy Context</h2>
+            <p>
+                The classic <strong>Buy-Borrow-Die</strong> approach works as follows:
+            </p>
+            <ul>
+                <li><strong>Buy</strong> assets that appreciate over time (stocks, real estate, etc.)</li>
+                <li><strong>Borrow</strong> against them for spending — borrowing proceeds are not taxed as income</li>
+                <li><strong>Die</strong> with appreciated assets that receive a stepped-up basis (IRC §1014), potentially eliminating capital gains tax for heirs</li>
+            </ul>
+
+            <h2 style="margin-top: 1.5rem;">Key Risks</h2>
+            <ul>
+                <li><strong>Margin calls:</strong> If markets fall, lenders may require additional collateral</li>
+                <li><strong>Interest rate risk:</strong> Rising rates increase borrowing costs</li>
+                <li><strong>Policy risk:</strong> Tax rules (including step-up basis) could change</li>
+                <li><strong>Concentration risk:</strong> Works best with diversified, liquid portfolios</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p class="disclaimer">
+                <strong>⚠️ Disclaimer:</strong> This calculator is for educational and illustrative purposes only. 
+                It is <strong>not</strong> financial, tax, legal, or investment advice. The Buy-Borrow-Die strategy 
+                involves significant market, liquidity, interest-rate, and policy risk. Consult qualified professionals 
+                before implementing any wealth strategy.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // =====================================================================
+        // FRONTEND CODE
+        // All financial calculations are done by the Python backend.
+        // This JavaScript only handles: UI, API calls, and Chart.js visualization.
+        // =====================================================================
+
+        // Global state
+        let simulationData = null;  // Stores response from Python backend
+        let chart = null;
+
+        // ---------------------------------------------------------------------
+        // Formatting utilities
+        // ---------------------------------------------------------------------
+        function formatCurrency(value) {
+            if (Math.abs(value) >= 1e9) {
+                return '$' + (value / 1e9).toFixed(2) + 'B';
+            } else if (Math.abs(value) >= 1e6) {
+                return '$' + (value / 1e6).toFixed(2) + 'M';
+            } else if (Math.abs(value) >= 1e3) {
+                return '$' + (value / 1e3).toFixed(1) + 'K';
+            }
+            return '$' + value.toFixed(0);
+        }
+
+        function formatPercent(value) {
+            return (value * 100).toFixed(1) + '%';
+        }
+
+        // ---------------------------------------------------------------------
+        // Error display
+        // ---------------------------------------------------------------------
+        function showError(message) {
+            const container = document.getElementById('errorContainer');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function clearError() {
+            document.getElementById('errorContainer').innerHTML = '';
+        }
+
+        // ---------------------------------------------------------------------
+        // Main calculation - calls Python backend
+        // ---------------------------------------------------------------------
+        async function calculate() {
+            clearError();
+            
+            const btn = document.getElementById('calculateBtn');
+            const loading = document.getElementById('chartLoading');
+            
+            btn.disabled = true;
+            btn.textContent = 'Calculating...';
+            loading.classList.add('active');
+
+            try {
+                // Gather input values
+                const params = {
+                    initial_investment: parseFloat(document.getElementById('initialInvestment').value) || 0,
+                    annual_borrowing: parseFloat(document.getElementById('annualBorrowing').value) || 0,
+                    investment_growth: parseFloat(document.getElementById('investmentGrowth').value) || 0,
+                    loan_interest: parseFloat(document.getElementById('loanInterest').value) || 0,
+                    inflation: parseFloat(document.getElementById('inflation').value) || 0,
+                    max_leverage: parseFloat(document.getElementById('maxLeverage').value) || 50,
+                    years: parseInt(document.getElementById('years').value) || 30
+                };
+
+                // Call Python backend API
+                const response = await fetch('/api/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Calculation failed');
+                }
+
+                // Store results and update UI
+                simulationData = result.data;
+                updateSummary();
+                updateTable();
+                updateChart();
+
+            } catch (error) {
+                console.error('Calculation error:', error);
+                showError(`Error: ${error.message}. Is the Python server running?`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Calculate';
+                loading.classList.remove('active');
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Update summary cards
+        // ---------------------------------------------------------------------
+        function updateSummary() {
+            if (!simulationData) return;
+
+            const summary = simulationData.summary;
+            const maxLeverage = (parseFloat(document.getElementById('maxLeverage').value) || 50) / 100;
+
+            const statusCard = document.getElementById('statusCard');
+            const statusValue = document.getElementById('statusValue');
+            const statusSubtext = document.getElementById('statusSubtext');
+
+            // Status
+            if (summary.is_feasible) {
+                statusCard.className = 'stat-card feasible';
+                statusValue.textContent = 'Feasible';
+                statusValue.className = 'stat-value green';
+                statusSubtext.textContent = 'All years within limits';
+            } else {
+                statusCard.className = 'stat-card not-feasible';
+                statusValue.textContent = 'Constrained';
+                statusValue.className = 'stat-value red';
+                statusSubtext.textContent = `Borrowing reduced in ${summary.constrained_years} year(s)`;
+            }
+
+            // Other stats
+            document.getElementById('finalNetWorth').textContent = formatCurrency(summary.final_net_worth_real);
+            document.getElementById('peakLeverage').textContent = formatPercent(summary.peak_leverage);
+            document.getElementById('totalBorrowed').textContent = formatCurrency(summary.total_borrowed);
+
+            // Color peak leverage based on risk
+            const leverageEl = document.getElementById('peakLeverage');
+            if (summary.peak_leverage >= maxLeverage * 0.9) {
+                leverageEl.className = 'stat-value red';
+            } else if (summary.peak_leverage >= maxLeverage * 0.7) {
+                leverageEl.className = 'stat-value amber';
+            } else {
+                leverageEl.className = 'stat-value green';
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Update data table
+        // ---------------------------------------------------------------------
+        function updateTable() {
+            const tbody = document.getElementById('resultsBody');
+            const maxLeverage = (parseFloat(document.getElementById('maxLeverage').value) || 50) / 100;
+
+            if (!simulationData || simulationData.years.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No data available</td></tr>`;
+                return;
+            }
+
+            const years = simulationData.years;
+            let html = '';
+
+            years.forEach(row => {
+                let rowClass = '';
+                if (row.leverage >= maxLeverage) {
+                    rowClass = 'danger';
+                } else if (row.leverage >= maxLeverage * 0.9) {
+                    rowClass = 'warning';
+                }
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${row.year}</td>
+                        <td>${formatCurrency(row.start_asset)}</td>
+                        <td>${formatCurrency(row.end_asset)}</td>
+                        <td>${formatCurrency(row.start_loan)}</td>
+                        <td>${formatCurrency(row.new_borrow)}</td>
+                        <td>${formatCurrency(row.interest)}</td>
+                        <td>${formatCurrency(row.end_loan)}</td>
+                        <td>${formatPercent(row.leverage)}</td>
+                        <td>${formatCurrency(row.net_worth)}</td>
+                    </tr>
+                `;
+            });
+
+            // Add totals row
+            const lastRow = years[years.length - 1];
+            const summary = simulationData.summary;
+
+            html += `
+                <tr class="totals">
+                    <td>Totals</td>
+                    <td>—</td>
+                    <td>${formatCurrency(lastRow.end_asset)}</td>
+                    <td>—</td>
+                    <td>${formatCurrency(summary.total_borrowed)}</td>
+                    <td>${formatCurrency(summary.total_interest)}</td>
+                    <td>${formatCurrency(lastRow.end_loan)}</td>
+                    <td>${formatPercent(summary.peak_leverage)} peak</td>
+                    <td>${formatCurrency(lastRow.net_worth)}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+        // ---------------------------------------------------------------------
+        // Update Chart.js visualization
+        // ---------------------------------------------------------------------
+        function updateChart() {
+            const ctx = document.getElementById('projectionChart').getContext('2d');
+            const maxLeverage = (parseFloat(document.getElementById('maxLeverage').value) || 50) / 100;
+
+            // Destroy existing chart
+            if (chart) {
+                chart.destroy();
+            }
+
+            if (!simulationData || simulationData.years.length === 0) return;
+
+            const years = simulationData.years;
+            const labels = years.map(r => 'Year ' + r.year);
+            const assets = years.map(r => r.end_asset);
+            const debt = years.map(r => r.end_loan);
+            const netWorth = years.map(r => r.net_worth);
+
+            // Find danger zone years
+            const dangerZone = years.map(r => r.leverage >= maxLeverage * 0.9);
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Assets',
+                            data: assets,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Debt',
+                            data: debt,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: dangerZone.map(d => d ? '#ef4444' : '#ef4444'),
+                            pointBorderColor: dangerZone.map(d => d ? '#fca5a5' : '#ef4444'),
+                            pointBorderWidth: dangerZone.map(d => d ? 3 : 1)
+                        },
+                        {
+                            label: 'Net Worth',
+                            data: netWorth,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'DM Sans', size: 12 },
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a2234',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#94a3b8',
+                            borderColor: '#2d3a4f',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(45, 58, 79, 0.5)' },
+                            ticks: {
+                                color: '#64748b',
+                                font: { family: 'DM Sans', size: 11 },
+                                maxTicksLimit: 15
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(45, 58, 79, 0.5)' },
+                            ticks: {
+                                color: '#64748b',
+                                font: { family: 'DM Mono', size: 11 },
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ---------------------------------------------------------------------
+        // Export to CSV
+        // ---------------------------------------------------------------------
+        function exportCSV() {
+            if (!simulationData || simulationData.years.length === 0) {
+                alert('Please run a simulation first.');
+                return;
+            }
+
+            let csv = 'Year,Start Asset,End Asset,Start Loan,New Borrow,Interest,End Loan,Leverage,Net Worth,Constrained\n';
+
+            simulationData.years.forEach(row => {
+                csv += `${row.year},${row.start_asset.toFixed(2)},${row.end_asset.toFixed(2)},${row.start_loan.toFixed(2)},${row.new_borrow.toFixed(2)},${row.interest.toFixed(2)},${row.end_loan.toFixed(2)},${(row.leverage * 100).toFixed(2)}%,${row.net_worth.toFixed(2)},${row.constrained}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'buy-borrow-die-simulation.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ---------------------------------------------------------------------
+        // Reset form
+        // ---------------------------------------------------------------------
+        function resetForm() {
+            document.getElementById('initialInvestment').value = 5000000;
+            document.getElementById('annualBorrowing').value = 200000;
+            document.getElementById('investmentGrowth').value = 8;
+            document.getElementById('loanInterest').value = 5;
+            document.getElementById('inflation').value = 3;
+            document.getElementById('maxLeverage').value = 50;
+            document.getElementById('years').value = 30;
+
+            simulationData = null;
+            clearError();
+            
+            // Reset summary
+            document.getElementById('statusCard').className = 'stat-card';
+            document.getElementById('statusValue').textContent = '—';
+            document.getElementById('statusValue').className = 'stat-value';
+            document.getElementById('statusSubtext').textContent = 'Run simulation';
+            document.getElementById('finalNetWorth').textContent = '$—';
+            document.getElementById('peakLeverage').textContent = '—%';
+            document.getElementById('peakLeverage').className = 'stat-value amber';
+            document.getElementById('totalBorrowed').textContent = '$—';
+
+            // Reset table
+            document.getElementById('resultsBody').innerHTML = `<tr><td colspan="9" class="empty-state">Enter parameters and click Calculate to run simulation</td></tr>`;
+
+            // Reset chart
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Auto-calculate on page load
+        // ---------------------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure server is ready
+            setTimeout(calculate, 100);
+        });
+    </script>
+</body>
+</html>
