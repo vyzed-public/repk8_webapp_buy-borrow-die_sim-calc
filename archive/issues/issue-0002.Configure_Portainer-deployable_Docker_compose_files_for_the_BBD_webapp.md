@@ -6,6 +6,12 @@
 
 ---
 
+Portainer is supposed to have capability to point directly to compose files in repos. 
+
+So we'll go ahead and see if that works.
+
+---
+
 IF we were to deploy in straight Docker, WITHOUT using Portainer, our preference would be:
 
 **Repo structure:**
