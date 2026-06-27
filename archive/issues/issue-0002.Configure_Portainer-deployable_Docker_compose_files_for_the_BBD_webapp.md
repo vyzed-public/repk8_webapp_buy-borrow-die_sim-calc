@@ -10,6 +10,8 @@ Portainer is supposed to have capability to point directly to compose files in r
 
 So we'll go ahead and see if that works.
 
+Our Docker compose files are: [here](https://github.com/vyzed-public/repk8_webapp_buy-borrow-die_sim-calc/tree/main/docker/bbd-calculator)
+
 ---
 
 IF we were to deploy in straight Docker, WITHOUT using Portainer, our preference would be:
